@@ -1,12 +1,20 @@
 from app import db
+from enum import Enum
 
 
-class User(db.Model):
+class Status(Enum):
+    CREATED = 0
+    CANCELED = 1
+    FINISHED = 2
+
+
+class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
+    name = db.Column(db.String, nullable=False)
 
 
-class Person(db.Model):
+class ShoppingCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False)
-    surname = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.Enum(Status), nullable=False)
+    isPriority = db.Column(db.Boolean, nullable=False)
+    products = db.Column(db.ARRAY(db.Integer), nullable=False)

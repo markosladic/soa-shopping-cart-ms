@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Shop Example API
+  title: Shopping cart API
   version: "0.1"
   description: Simple example API
 consumes:
@@ -21,28 +21,41 @@ paths:
           description: Return test1
         404:
           description: Does not exist
-  /person/:
-    post:
-      tags: [ Person ]
-      operationId: app.person_add
-      parameters:
-        - $ref: '#/parameters/person_body'
-      responses:
-        200:
-          description: Return status
-        409:
-          description: Already exists
-  /person/{person_name}:
+  /products/{user_id}:
     get:
-      tags: [ Person ]
-      operationId: app.person_find
+      tags: [ Products ]
+      operationId: app.list_all_products
+      summary: testing get_all_products
       parameters:
-        - $ref: '#/parameters/person_name'
+        - $ref: '#/parameters/user_id'
       responses:
         200:
-          description: Return person object
+          description: Return exists
         404:
-          description: Person not found
+          description: Does not exists
+
+#  /person/:
+#    post:
+#      tags: [ Person ]
+#      operationId: app.person_add
+#      parameters:
+#        - $ref: '#/parameters/person_body'
+#      responses:
+#        200:
+#          description: Return status
+#        409:
+#          description: Already exists
+#  /person/{person_name}:
+#    get:
+#      tags: [ Person ]
+#      operationId: app.person_find
+#      parameters:
+#        - $ref: '#/parameters/person_name'
+#      responses:
+#        200:
+#          description: Return person object
+#        404:
+#          description: Person not found
 parameters:
   test1_id:
     name: test1_id
@@ -52,22 +65,30 @@ parameters:
     required: true
     pattern: "^[a-zA-Z0-9-]+$"
 
-  person_body:
-    name: person_body
-    description: Test1 unique id
-    in: body
-    schema:
-      required:
-        - name
-      properties:
-        name:
-          type: string
-        surname:
-          type: string
-
-  person_name:
-    name: person_name
-    description: The name of the person we're looking for
+  user_id:
+    name: user_id
+    description: Products test
     in: path
-    required: true
     type: string
+    required: true
+    pattern: "^[a-zA-Z0-9-]+$"
+
+#  person_body:
+#    name: person_body
+#    description: Test1 unique id
+#    in: body
+#    schema:
+#      required:
+#        - name
+#      properties:
+#        name:
+#          type: string
+#        surname:
+#          type: string
+
+#  person_name:
+#    name: person_name
+#    description: The name of the person we're looking for
+#    in: path
+#    required: true
+#    type: string
