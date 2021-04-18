@@ -9,73 +9,62 @@ produces:
   - application/json
 basePath: "/api"
 paths:
-  /test1/{test1_id}:
-    get:
-      tags: [ Test1 ]
-      operationId: app.get_test1
-      summary: Testing endpoint
+  /add_product/{product_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.add_product
       parameters:
-        - $ref: '#/parameters/test1_id'
+        - $ref: '#/parameters/product_id'
+        - $ref: '#/parameters/user_id'
       responses:
         200:
-          description: Return test1
-        404:
-          description: Does not exist
-  /products/{user_id}:
-    get:
-      tags: [ Products ]
+          description: Product added
+        405:
+          description: Couldnt add product
+
+  /remove_product/{product_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.remove_product
+      parameters:
+        - $ref: '#/parameters/product_id'
+        - $ref: '#/parameters/user_id'
+      responses:
+        200:
+          description: Product remove
+        405:
+          description: Couldnt remove product
+
+  /list_all_products/{user_id}:
+    post:
+      tags: [ Product ]
       operationId: app.list_all_products
-      summary: testing get_all_products
       parameters:
         - $ref: '#/parameters/user_id'
       responses:
         200:
-          description: Return exists
+          description: Listed all products
         404:
-          description: Does not exists
+          description: Couldnt list all products
 
-#  /person/:
-#    post:
-#      tags: [ Person ]
-#      operationId: app.person_add
-#      parameters:
-#        - $ref: '#/parameters/person_body'
-#      responses:
-#        200:
-#          description: Return status
-#        409:
-#          description: Already exists
-#  /person/{person_name}:
-#    get:
-#      tags: [ Person ]
-#      operationId: app.person_find
-#      parameters:
-#        - $ref: '#/parameters/person_name'
-#      responses:
-#        200:
-#          description: Return person object
-#        404:
-#          description: Person not found
 parameters:
-  test1_id:
-    name: test1_id
-    description: Test1 unique id
-    in: path
-    type: string
-    required: true
-    pattern: "^[a-zA-Z0-9-]+$"
-
   user_id:
     name: user_id
     description: Products test
     in: path
-    type: string
+    type: integer
     required: true
-    pattern: "^[a-zA-Z0-9-]+$"
 
-#  person_body:
-#    name: person_body
-#    description: Test1 unique id
+  product_id:
+    name: product_id
+    description: Product ID
+    in: path
+    type: integer
+    required: true
+
+#  product:
+#    name: product
+#    description: product
 #    in: body
 #    schema:
 #      required:
@@ -83,12 +72,7 @@ parameters:
 #      properties:
 #        name:
 #          type: string
-#        surname:
-#          type: string
-
-#  person_name:
-#    name: person_name
-#    description: The name of the person we're looking for
-#    in: path
-#    required: true
-#    type: string
+#        price:
+#          type: float
+#        quantity:
+#          type: integer

@@ -8,13 +8,21 @@ class Status(Enum):
     FINISHED = 2
 
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-
-
 class ShoppingCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(Status), nullable=False)
     isPriority = db.Column(db.Boolean, nullable=False)
-    products = db.Column(db.ARRAY(db.Integer), nullable=False)
+    products = db.relationship("Product", order_by="Product.product_id")
+    user_id = db.Column(db.Integer, nullable=False)
+
+
+class User(db.Model):
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+
+
+class Product(db.Model):
+    product_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
