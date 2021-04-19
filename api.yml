@@ -47,10 +47,61 @@ paths:
         404:
           description: Couldnt list all products
 
+  /change_quantity/{product_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.change_quantity
+      parameters:
+        - $ref: '#/parameters/product_id'
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/quantity'
+      responses:
+        200:
+          description: Quantity changed
+        404:
+          description: Couldnt change quantity
+
+  /buy_products/{cart_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.buy_products
+      parameters:
+        - $ref: '#/parameters/cart_id'
+      responses:
+        200:
+          description: Price sent
+        404:
+          description: Couldnt send price
+
+  /reserve_product/{user_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.reserve_product
+      parameters:
+        - $ref: '#/parameters/user_id'
+      responses:
+        200:
+          description: Products sent
+        404:
+          description: Couldnt send products
+
+  /create_invoice/{user_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.create_invoice
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/transaction_id'
+      responses:
+        200:
+          description: Products sent
+        404:
+          description: Couldnt send products
+
 parameters:
   user_id:
     name: user_id
-    description: Products test
+    description: User ID
     in: path
     type: integer
     required: true
@@ -62,17 +113,24 @@ parameters:
     type: integer
     required: true
 
-#  product:
-#    name: product
-#    description: product
-#    in: body
-#    schema:
-#      required:
-#        - name
-#      properties:
-#        name:
-#          type: string
-#        price:
-#          type: float
-#        quantity:
-#          type: integer
+  quantity:
+    name: quantity
+    description: Product quantity
+    in: path
+    type: integer
+    required: true
+
+  cart_id:
+    name: cart_id
+    description: Cart ID
+    in: path
+    type: integer
+    required: true
+
+  transaction_id:
+    name: transaction_id
+    description: Transaction ID
+    in: path
+    type: integer
+    required: true
+

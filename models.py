@@ -9,7 +9,7 @@ class Status(Enum):
 
 
 class ShoppingCart(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(Status), nullable=False)
     isPriority = db.Column(db.Boolean, nullable=False)
     products = db.relationship("Product", order_by="Product.product_id")
