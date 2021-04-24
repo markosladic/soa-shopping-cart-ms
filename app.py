@@ -1,6 +1,41 @@
+from functools import wraps
 import connexion
+from flask import request, abort
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import jwt
+import time
+
+JWT_SECRET = 'MY JWT SECRET'
+JWT_LIFETIME_SECONDS = 600000
+
+
+def has_role(arg):
+    def has_role_inner(fn):
+        @wraps(fn)
+        def decorated_view(*args, **kwargs):
+            try:
+                headers = request.headers
+                if 'AUTHORIZATION' in headers:
+                    token = headers['AUTHORIZATION'].split(' ')[1]
+                    decoded_token = decode_token(token)
+                    if 'admin' in decoded_token['roles']:
+                        return fn(*args, **kwargs)
+                    for role in arg:
+                        if role in decoded_token['roles']:
+                            return fn(*args, **kwargs)
+                    abort(401)
+                return fn(*args, **kwargs)
+            except Exception as e:
+                abort(401)
+
+        return decorated_view
+
+    return has_role_inner
+
+
+def decode_token(token):
+    return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
 
 
 def add_product(user_id, product_id):
@@ -21,6 +56,7 @@ def remove_product(user_id, product_id):
             'product.id': product.id}
 
 
+@has_role(['shopping_cart', 'user', 'inventory'])
 def list_all_products(user_id):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
     products = cart.products
@@ -54,10 +90,11 @@ def buy_products(cart_id):
     cart = db.session.query(ShoppingCart).filter_by(cart_id=cart_id).first()
     price = 0
     for product in cart.products:
-        price += (product.price*product.quantity)
+        price += (product.price * product.quantity)
 
     return {
-        'price': price
+        'price': price,
+        'products': cart.products
     }
 
 
@@ -72,8 +109,6 @@ def create_invoice(user_id, transaction_id):
             'products': products}
 
 
-#create_order(): ??
-
 connexion_app = connexion.App(__name__, specification_dir="./")
 app = connexion_app.app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -81,7 +116,9 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 connexion_app.add_api("api.yml")
 
-from models import ShoppingCart, Product
+
+from models import ShoppingCart, Product, User, Status
+
 
 if __name__ == "__main__":
     connexion_app.run(host='0.0.0.0', port=5000, debug=True)
