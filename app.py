@@ -56,7 +56,7 @@ def remove_product(user_id, product_id):
             'product.id': product.id}
 
 
-@has_role(['shopping_cart', 'user', 'inventory'])
+# @has_role(['shopping_cart', 'user', 'inventory'])
 def list_all_products(user_id):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
     products = cart.products
@@ -116,9 +116,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 connexion_app.add_api("api.yml")
 
-
 from models import ShoppingCart, Product, User, Status
-
 
 if __name__ == "__main__":
     connexion_app.run(host='0.0.0.0', port=5000, debug=True)
