@@ -4,20 +4,21 @@ from flask import request, abort
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import jwt
+import socket
 from consul import Consul, Check
 
 JWT_SECRET = 'SHOPPING CART MS SECRET'
 JWT_LIFETIME_SECONDS = 600000
 consul_port = 8500
-service_name = "shopping_cart"
-service_port = 5002
+service_name = "sc"
+service_port = 5000
 
 
 def register_to_consul():
-    consul = Consul(host="consul", port=consul_port)
+    consul = Consul(host='consul', port=consul_port)
     agent = consul.agent
     service = agent.service
-    check = Check.http(f"http://{service_name}:{service_port}/", interval="10s", timeout="5s", deregister="1s")
+    check = Check.http(f"http://{service_name}:{service_port}/api/ui", interval="10s", timeout="5s", deregister="1s")
     service.register(service_name, service_id=service_name, port=service_port, check=check)
 
 
@@ -29,7 +30,7 @@ def get_service(service_id):
     return service_info['Address'], service_info['Port']
 
 
-# register_to_consul()
+register_to_consul()
 
 
 def has_role(arg):
@@ -139,6 +140,8 @@ migrate = Migrate(app, db)
 connexion_app.add_api("api.yml")
 
 from models import ShoppingCart, Product, Status
+
+register_to_consul()
 
 if __name__ == "__main__":
     connexion_app.run(host='0.0.0.0', port=5000, debug=True)

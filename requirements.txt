@@ -4,3 +4,4 @@ connexion[swagger-ui]~=2.7.0
 sqlalchemy~=1.4.9
 PyJWT~=2.0.1
 alembic~=1.5.8
+python-consul
