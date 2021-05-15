@@ -10,7 +10,40 @@ produces:
 
 basePath: "/api"
 paths:
-  /add_product/{user_id}:
+
+  /create_shopping_cart/{user_id}:
+    post:
+      tags: [ Product ]
+      operationId: app.create_shopping_cart
+      parameters:
+        - $ref: '#/parameters/user_id'
+      responses:
+        200:
+          description: Sc added
+        405:
+          description: Couldnt add sc
+
+  /create_product:
+    post:
+      tags: [ Product ]
+      operationId: app.create_product
+      responses:
+        200:
+          description: product added
+        405:
+          description: Couldnt add product
+
+  /create_user:
+    post:
+      tags: [ Product ]
+      operationId: app.create_user
+      responses:
+        200:
+          description: user added
+        405:
+          description: Couldnt add user
+
+  /add_product/{user_id}/{product_id}:
     post:
       tags: [ Product ]
       operationId: app.add_product
