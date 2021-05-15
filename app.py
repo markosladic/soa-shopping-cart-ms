@@ -1,11 +1,10 @@
 from functools import wraps
 import connexion
-from flask import request, abort
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 import jwt
-import socket
 from consul import Consul, Check
+from flask import request, abort
+from flask_migrate import Migrate, MigrateCommand
+from flask_sqlalchemy import SQLAlchemy
 
 JWT_SECRET = 'SHOPPING CART MS SECRET'
 JWT_LIFETIME_SECONDS = 600000
@@ -61,42 +60,60 @@ def decode_token(token):
     return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
 
 
+#@has_role(['shopping_cart', 'user', 'admin'])
 def add_product(user_id, product_id):
-    product = db.session.query(Product).filter_by(product_id=product_id).first()
-    cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    cart.products.append(product)
+    carts = db.session.query(ShoppingCart).filter_by(user_id=user_id).all()
+    cart = None
+    for c in carts:
+        if c.product_id is None:
+            c.product_id = product_id
+            cart = c
+            break
 
-    return {'id': cart.id,
-            'product': product.id}
+    db.session.add(cart)
+    db.session.commit()
+
+    return {'user_id': user_id,
+            'product_id': product_id}
 
 
+#@has_role(['shopping_cart', 'user', 'admin'])
 def remove_product(user_id, product_id):
-    product = db.session.query(Product).filter_by(product_id=product_id).first()
-    cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    cart.products.remove(product)
+    carts = db.session.query(ShoppingCart).filter_by(user_id=user_id).all()
+    cart = None
+    for c in carts:
+        if c.product_id is None:
+            c.product_id = product_id
+            cart = c
+            break
 
-    return {'cart.id': cart.id,
-            'product.id': product.id}
+    db.session.delete(cart)
+    db.session.commit()
+
+    return {'user_id': user_id,
+            'product_id': product_id}
 
 
-# @has_role(['shopping_cart', 'user', 'inventory'])
+#@has_role(['shopping_cart', 'user', 'admin'])
 def list_all_products(user_id):
-    cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    products = cart.products
-    productList = []
+    carts = db.session.query(ShoppingCart).filter_by(user_id=user_id).all()
+    products = []
+    for cart in carts:
+        product = db.session.query(Product).filter_by(product_id=cart.product_id).first()
+        products.append({
+            'product_id': product.product_id,
+            'name': product.name,
+            'price': product.price,
+            'quantity': product.quantity,
+        })
 
-    for product in products:
-        productList.append({'product.id': product.product_id,
-                            'name': product.name,
-                            'price': product.price,
-                            'quantity': product.quantity})
-
-    return productList
+    return products
 
 
+#@has_role(['shopping_cart', 'user', 'admin'])
 def change_quantity(user_id, product_id, quantity):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    product = Product()
+    product = None
     for p in cart.products:
         if p.product_id == product_id:
             p.quantity = quantity
@@ -109,23 +126,20 @@ def change_quantity(user_id, product_id, quantity):
     }
 
 
-def buy_products(cart_id):
-    cart = db.session.query(ShoppingCart).filter_by(cart_id=cart_id).first()
+#@has_role(['shopping_cart', 'user', 'admin'])
+def buy_products(user_id):
+    carts = db.session.query(ShoppingCart).filter_by(user_id=user_id).all()
     price = 0
-    for product in cart.products:
-        price += (product.price * product.quantity)
+    for cart in carts:
+        product = db.session.query(Product).filter_by(product_id=cart.product_id).first()
+        price += product.price * product.quantity
 
     return {
-        'price': price,
-        'products': cart.products
+        'price': price
     }
 
 
-def reserve_product(user_id):
-    products = list_all_products(user_id)
-    return products
-
-
+#@has_role(['shopping_cart', 'user', 'admin', 'invoices'])
 def create_invoice(user_id, transaction_id):
     products = list_all_products(user_id)
     return {'transaction_id': transaction_id,
@@ -135,6 +149,7 @@ def create_invoice(user_id, transaction_id):
 connexion_app = connexion.App(__name__, specification_dir="./")
 app = connexion_app.app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 connexion_app.add_api("api.yml")

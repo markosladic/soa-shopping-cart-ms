@@ -7,39 +7,29 @@ consumes:
   - application/json
 produces:
   - application/json
+
 basePath: "/api"
-securityDefinitions:
-  jwt:
-    type: apiKey
-    name: Authorization
-    in: header
-    x-authentication-scheme: Bearer
-    x-bearerInfoFunc: app.decode_token
 paths:
-  /add_product/{product_id}:
+  /add_product/{user_id}:
     post:
-      security:
-        - jwt: [ 'secret' ]
       tags: [ Product ]
       operationId: app.add_product
       parameters:
-        - $ref: '#/parameters/product_id'
         - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/product_id'
       responses:
         200:
           description: Product added
         405:
           description: Couldnt add product
 
-  /remove_product/{product_id}:
-    post:
-      security:
-        - jwt: [ 'secret' ]
+  /remove_product/{user_id}:
+    delete:
       tags: [ Product ]
       operationId: app.remove_product
       parameters:
-        - $ref: '#/parameters/product_id'
         - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/product_id'
       responses:
         200:
           description: Product remove
@@ -48,8 +38,6 @@ paths:
 
   /list_all_products/{user_id}:
     get:
-      security:
-        - jwt: [ 'secret' ]
       tags: [ Product ]
       operationId: app.list_all_products
       parameters:
@@ -61,9 +49,7 @@ paths:
           description: Couldnt list all products
 
   /change_quantity/{product_id}:
-    post:
-      security:
-        - jwt: [ 'secret' ]
+    put:
       tags: [ Product ]
       operationId: app.change_quantity
       parameters:
@@ -76,38 +62,20 @@ paths:
         404:
           description: Couldnt change quantity
 
-  /buy_products/{cart_id}:
+  /buy_products/{user_id}:
     post:
-      security:
-        - jwt: [ 'secret' ]
       tags: [ Product ]
       operationId: app.buy_products
       parameters:
-        - $ref: '#/parameters/cart_id'
+        - $ref: '#/parameters/user_id'
       responses:
         200:
           description: Price sent
         404:
           description: Couldnt send price
 
-  /reserve_product/{user_id}:
-    post:
-      security:
-        - jwt: [ 'secret' ]
-      tags: [ Product ]
-      operationId: app.reserve_product
-      parameters:
-        - $ref: '#/parameters/user_id'
-      responses:
-        200:
-          description: Products sent
-        404:
-          description: Couldnt send products
-
   /create_invoice/{user_id}:
     post:
-      security:
-        - jwt: [ 'secret' ]
       tags: [ Product ]
       operationId: app.create_invoice
       parameters:
@@ -137,13 +105,6 @@ parameters:
   quantity:
     name: quantity
     description: Product quantity
-    in: path
-    type: integer
-    required: true
-
-  cart_id:
-    name: cart_id
-    description: Cart ID
     in: path
     type: integer
     required: true

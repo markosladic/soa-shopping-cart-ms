@@ -10,11 +10,10 @@ class Status(Enum):
 
 class ShoppingCart(db.Model):
     __tablename__ = 'shopping_cart'
-    cart_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(Status), nullable=False)
     isPriority = db.Column(db.Boolean, nullable=False)
-    products = db.relationship("Product", order_by="Product.product_id")
-    user_id = db.Column(db.Integer, nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.product_id'), nullable=False)
 
 
 class User(db.Model):
