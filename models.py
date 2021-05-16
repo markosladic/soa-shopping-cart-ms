@@ -31,4 +31,4 @@ class Product(db.Model):
     name = db.Column(db.String, nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.user_id'))

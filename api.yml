@@ -43,6 +43,16 @@ paths:
         405:
           description: Couldnt add user
 
+  /delete_user:
+    delete:
+      tags: [ Product ]
+      operationId: app.delete_user
+      responses:
+        200:
+          description: user added
+        405:
+          description: Couldnt add user
+
   /add_product/{user_id}/{product_id}:
     post:
       tags: [ Product ]
@@ -56,7 +66,7 @@ paths:
         405:
           description: Couldnt add product
 
-  /remove_product/{user_id}:
+  /remove_product/{user_id}/{product_id}:
     delete:
       tags: [ Product ]
       operationId: app.remove_product
@@ -81,7 +91,7 @@ paths:
         404:
           description: Couldnt list all products
 
-  /change_quantity/{product_id}:
+  /change_quantity/{user_id}/{product_id}:
     put:
       tags: [ Product ]
       operationId: app.change_quantity
@@ -138,7 +148,7 @@ parameters:
   quantity:
     name: quantity
     description: Product quantity
-    in: path
+    in: query
     type: integer
     required: true
 
