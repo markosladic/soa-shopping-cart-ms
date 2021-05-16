@@ -29,7 +29,7 @@ def get_service(service_id):
     return service_info['Address'], service_info['Port']
 
 
-register_to_consul()
+# register_to_consul()
 
 
 def has_role(arg):
@@ -61,55 +61,64 @@ def decode_token(token):
 
 
 def create_shopping_cart(user_id):
-    sc = ShoppingCart(user_id=user_id, status=Status.CREATED, isPriority=False)
+    sc = ShoppingCart(user_id=user_id, status=Status.CREATED, isPriority=False, transaction_id=5)
     db.session.add(sc)
     db.session.commit()
 
     return {
-        'user_id': user_id
+        'user_id': sc.user_id,
+        'transaction_id': sc.transaction_id
     }
 
 
 def create_user():
-    user = User(user_id=2, username="GJ")
+    user = User(user_id=1, username="Marko")
     db.session.add(user)
     db.session.commit()
 
     return {
-        'user_id': user.user_id
+        'user_id': user.user_id,
+        'username': user.username
     }
 
 
 def delete_user():
-    user = db.session.query(User).filter_by(user_id=2).first()
+    user = db.session.query(User).filter_by(user_id=1).first()
     db.session.delete(user)
     db.session.commit()
 
     return {
-        'user_id': user.user_id
+        'user_id': user.user_id,
+        'username': user.username
     }
 
 
 def create_product():
-    product = Product(product_id=1, name="Skopsko", price=100.0, quantity=3, user_id=2)
+    product = Product(product_id=2, name="Bike", price=100.0, quantity=3, status=StatusProduct.BUY, user_id=1)
     db.session.add(product)
     db.session.commit()
 
+    return {
+        'product_id': product.product_id,
+        'name': product.name,
+    }
 
-# @has_role(['shopping_cart', 'user', 'admin'])
-def add_product(user_id, product_id):  # trebit user_id i status na inventory(nie im prakjame)
+
+#@has_role(["admin"])
+def add_product(user_id, product_id, status):  # trebit user_id i status na inventory(nie im prakjame)
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
     product = db.session.query(Product).filter_by(product_id=product_id).first()
     product.user_id = cart.user_id
-
+    product.status = status
     db.session.add(cart)
     db.session.commit()
 
     return {'user_id': user_id,
-            'product_id': product_id}
+            'product_id': product_id
+            }
 
 
-# @has_role(['shopping_cart', 'user', 'admin'])
+#@has_role(['shopping_cart', 'user', 'admin'])
 def remove_product(user_id, product_id):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
     product = db.session.query(Product).filter_by(product_id=product_id).first()
@@ -122,25 +131,26 @@ def remove_product(user_id, product_id):
             'product_id': product_id}
 
 
-# @has_role(['shopping_cart', 'user', 'admin'])
+#@has_role(['shopping_cart', 'user', 'admin'])
 def list_all_products(user_id):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    products = db.session.query(Product).filter_by(product_id=cart.product_id).all()
+    products = db.session.query(Product).filter_by(user_id=cart.user_id).all()
     productList = []
     for product in products:
         productList.append({
             'product_id': product.product_id,
             'name': product.name,
             'price': product.price,
+            'item_type': str(product.status),
             'quantity': product.quantity
         })
     return productList
 
 
-# @has_role(['shopping_cart', 'user', 'admin'])
+#@has_role(['shopping_cart', 'user', 'admin'])
 def change_quantity(user_id, product_id, quantity):
     cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
-    products = db.session.query(Product).filter_by(product_id=cart.product_id).all()
+    products = db.session.query(Product).filter_by(user_id=cart.user_id).all()
     product = Product()
     for p in products:
         if p.product_id == product_id:
@@ -148,30 +158,34 @@ def change_quantity(user_id, product_id, quantity):
             break
 
     product.quantity = quantity
+    db.session.commit()
     return {
         'product_id': product.product_id,
         'quantity': product.quantity
     }
 
 
-# @has_role(['shopping_cart', 'user', 'admin'])
+#@has_role(['shopping_cart', 'user', 'admin'])
 def buy_products(user_id):
-    carts = db.session.query(ShoppingCart).filter_by(user_id=user_id).all()
+    cart = db.session.query(ShoppingCart).filter_by(user_id=user_id).first()
+    products = db.session.query(Product).filter_by(user_id=cart.user_id).all()
     price = 0
-    for cart in carts:
-        product = db.session.query(Product).filter_by(product_id=cart.product_id).first()
+    for product in products:
         price += product.price * product.quantity
+        db.session.delete(product)
 
+    db.session.commit()
     return {
         'price': price
     }
 
 
-# @has_role(['shopping_cart', 'user', 'admin', 'invoices'])
+#@has_role(['shopping_cart', 'user', 'admin', 'invoices'])
 def create_invoice(user_id, transaction_id):
     products = list_all_products(user_id)
-    return {'transaction_id': transaction_id,
-            'products': products}
+    return {'user_id': user_id,
+            'transaction_id': transaction_id,
+            'item_list': products}
 
 
 connexion_app = connexion.App(__name__, specification_dir="./")
@@ -182,9 +196,9 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 connexion_app.add_api("api.yml")
 
-from models import ShoppingCart, Product, Status, User
+from models import ShoppingCart, Product, Status, User, StatusProduct
 
-register_to_consul()
+# register_to_consul()
 
 if __name__ == "__main__":
     connexion_app.run(host='0.0.0.0', port=5000, debug=True)

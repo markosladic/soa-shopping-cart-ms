@@ -10,11 +10,17 @@ class Status(Enum):
     FINISHED = 2
 
 
+class StatusProduct(Enum):
+    BUY = 0
+    RENT = 1
+
+
 class ShoppingCart(db.Model):
     __tablename__ = 'shopping_cart'
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     status = db.Column(db.Enum(Status), nullable=False)
     isPriority = db.Column(db.Boolean, nullable=False)
+    transaction_id = db.Column(db.Integer, nullable=True)
     product_id = relationship("Product")
     user = relationship("User")
 
@@ -31,4 +37,5 @@ class Product(db.Model):
     name = db.Column(db.String, nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.Enum(StatusProduct), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.user_id'))

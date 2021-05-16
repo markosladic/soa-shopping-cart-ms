@@ -9,8 +9,16 @@ produces:
   - application/json
 
 basePath: "/api"
+securityDefinitions:
+  jwt:
+    type: apiKey
+    name: Authorization
+    in: header
+    x-authentication-scheme: Bearer
+    x-bearerInfoFunc: app.decode_token
+security:
+  - jwt: []
 paths:
-
   /create_shopping_cart/{user_id}:
     post:
       tags: [ Product ]
@@ -53,13 +61,14 @@ paths:
         405:
           description: Couldnt add user
 
-  /add_product/{user_id}/{product_id}:
+  /add_product/{user_id}/{product_id}/{status}:
     post:
       tags: [ Product ]
       operationId: app.add_product
       parameters:
         - $ref: '#/parameters/user_id'
         - $ref: '#/parameters/product_id'
+        - $ref: '#/parameters/status'
       responses:
         200:
           description: Product added
@@ -91,7 +100,7 @@ paths:
         404:
           description: Couldnt list all products
 
-  /change_quantity/{user_id}/{product_id}:
+  /change_quantity/{user_id}/{product_id}/{quantity}:
     put:
       tags: [ Product ]
       operationId: app.change_quantity
@@ -117,7 +126,7 @@ paths:
         404:
           description: Couldnt send price
 
-  /create_invoice/{user_id}:
+  /create_invoice/{user_id}/{transaction_id}:
     post:
       tags: [ Product ]
       operationId: app.create_invoice
@@ -148,7 +157,7 @@ parameters:
   quantity:
     name: quantity
     description: Product quantity
-    in: query
+    in: path
     type: integer
     required: true
 
@@ -157,5 +166,15 @@ parameters:
     description: Transaction ID
     in: path
     type: integer
+    required: true
+
+  status:
+    name: status
+    description: Status
+    in: path
+    type: string
+    enum:
+      - BUY
+      - RENT
     required: true
 
