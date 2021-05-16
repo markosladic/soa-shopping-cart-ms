@@ -29,7 +29,7 @@ def get_service(service_id):
     return service_info['Address'], service_info['Port']
 
 
-# register_to_consul()
+register_to_consul()
 
 
 def has_role(arg):
@@ -198,7 +198,7 @@ connexion_app.add_api("api.yml")
 
 from models import ShoppingCart, Product, Status, User, StatusProduct
 
-# register_to_consul()
+register_to_consul()
 
 if __name__ == "__main__":
     connexion_app.run(host='0.0.0.0', port=5000, debug=True)

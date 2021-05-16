@@ -9,15 +9,15 @@ produces:
   - application/json
 
 basePath: "/api"
-securityDefinitions:
-  jwt:
-    type: apiKey
-    name: Authorization
-    in: header
-    x-authentication-scheme: Bearer
-    x-bearerInfoFunc: app.decode_token
-security:
-  - jwt: []
+#securityDefinitions:
+#  jwt:
+#    type: apiKey
+#    name: Authorization
+#    in: header
+#    x-authentication-scheme: Bearer
+#    x-bearerInfoFunc: app.decode_token
+#security:
+#  - jwt: []
 paths:
   /create_shopping_cart/{user_id}:
     post:
