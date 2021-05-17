@@ -21,7 +21,7 @@ basePath: "/api"
 paths:
   /create_shopping_cart/{user_id}:
     post:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.create_shopping_cart
       parameters:
         - $ref: '#/parameters/user_id'
@@ -43,7 +43,7 @@ paths:
 
   /create_user:
     post:
-      tags: [ Product ]
+      tags: [ User ]
       operationId: app.create_user
       responses:
         200:
@@ -53,7 +53,7 @@ paths:
 
   /delete_user:
     delete:
-      tags: [ Product ]
+      tags: [ User ]
       operationId: app.delete_user
       responses:
         200:
@@ -63,7 +63,7 @@ paths:
 
   /add_product/{user_id}/{product_id}/{status}:
     post:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.add_product
       parameters:
         - $ref: '#/parameters/user_id'
@@ -77,7 +77,7 @@ paths:
 
   /remove_product/{user_id}/{product_id}:
     delete:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.remove_product
       parameters:
         - $ref: '#/parameters/user_id'
@@ -90,7 +90,7 @@ paths:
 
   /list_all_products/{user_id}:
     get:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.list_all_products
       parameters:
         - $ref: '#/parameters/user_id'
@@ -102,7 +102,7 @@ paths:
 
   /change_quantity/{user_id}/{product_id}/{quantity}:
     put:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.change_quantity
       parameters:
         - $ref: '#/parameters/product_id'
@@ -116,7 +116,7 @@ paths:
 
   /buy_products/{user_id}:
     post:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.buy_products
       parameters:
         - $ref: '#/parameters/user_id'
@@ -128,7 +128,7 @@ paths:
 
   /create_invoice/{user_id}/{transaction_id}:
     post:
-      tags: [ Product ]
+      tags: [ Shopping Cart ]
       operationId: app.create_invoice
       parameters:
         - $ref: '#/parameters/user_id'
